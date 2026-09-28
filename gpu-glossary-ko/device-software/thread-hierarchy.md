@@ -1,0 +1,15 @@
+---
+title: CUDA 스레드 계층 구조란 무엇인가?
+---
+
+![[CUDA 프로그래밍 모델](/gpu-glossary/device-software/cuda-programming-model)의 스레드 계층 구조는 개별 [스레드](/gpu-glossary/device-software/thread)에서 [스레드 블록](/gpu-glossary/device-software/thread-block), [스레드 블록 그리드](/gpu-glossary/device-software/thread-block-grid)로 확장되며(왼쪽), 하드웨어 측면에서는 [CUDA 코어](/gpu-glossary/device-hardware/cuda-core)에서 [스트리밍 다중처리기](/gpu-glossary/device-hardware/streaming-multiprocessor), 그리고 GPU 전체로 매핑됩니다(오른쪽). NVIDIA의 [CUDA Refresher: The CUDA Programming Model](https://developer.nvidia.com/blog/cuda-refresher-cuda-programming-model/) 및 [CUDA C++ 프로그래밍 가이드](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#programming-model) 다이어그램을 바탕으로 수정하였습니다.](https://modal-cdn.com/gpu-glossary/light-cuda-programming-model.svg)
+
+스레드 계층 구조는 [메모리 계층 구조](/gpu-glossary/device-software/memory-hierarchy)와 함께 [CUDA 프로그래밍 모델](/gpu-glossary/device-software/cuda-programming-model)을 지탱하는 핵심 추상화입니다. 개별 스레드부터 GPU 디바이스 전체에 이르기까지 여러 단계에 걸쳐 병렬 프로그램의 실행 단위를 구조화합니다.
+
+최하위 계층에는 개별 [스레드](/gpu-glossary/device-software/thread)가 위치합니다. CPU의 실행 스레드와 마찬가지로 각 [CUDA 스레드](/gpu-glossary/device-software/thread)는 일련의 명령어 스트림을 실행합니다. 산술 및 논리 연산 명령어를 실제로 실행하는 하드웨어 자원을 [코어](/gpu-glossary/device-hardware/core) 또는 "파이프(pipe)"라고 부릅니다. 스레드는 [워프 스케줄러](/gpu-glossary/device-hardware/warp-scheduler)에 의해 실행 대상으로 선택됩니다.
+
+중간 계층은 [스레드 블록](/gpu-glossary/device-software/thread-block)으로 구성되며, 이는 [PTX](/gpu-glossary/device-software/parallel-thread-execution) 및 [SASS](/gpu-glossary/device-software/streaming-assembler)에서 [협력형 스레드 배열(CTA)](/gpu-glossary/device-software/cooperative-thread-array)로도 불립니다. 각 [스레드](/gpu-glossary/device-software/thread)는 자신이 속한 [스레드 블록](/gpu-glossary/device-software/thread-block) 안에서 고유한 식별자를 가집니다. 이러한 스레드 식별자는 인덱스 기반으로 부여되므로 입력 또는 출력 배열의 인덱스를 바탕으로 각 스레드에 작업을 손쉽게 분배할 수 있습니다. 단일 블록에 속한 모든 스레드는 동일한 [스트리밍 다중처리기(SM)](/gpu-glossary/device-hardware/streaming-multiprocessor)에 동시에 스케줄링됩니다. 이들은 [공유 메모리](/gpu-glossary/device-software/shared-memory)를 통해 협력하고 배리어를 사용하여 동기화할 수 있습니다.
+
+최상위 계층에서는 여러 [스레드 블록](/gpu-glossary/device-software/thread-block)이 GPU 전체에 걸치는 [스레드 블록 그리드](/gpu-glossary/device-software/thread-block-grid)를 형성합니다. [스레드 블록](/gpu-glossary/device-software/thread-block) 간의 상호 작용 및 통신은 엄격하게 제한됩니다. 그리드 내의 블록들은 상호 간에 실행 순서가 보장되지 않은 채 동시(concurrent)에 실행됩니다. [CUDA 프로그램](/gpu-glossary/device-software/cuda-programming-model)은 블록들이 완전히 직렬로 실행되든 완전히 병렬로 실행되든 임의의 실행 순서에서도 문제없이 동작하도록 작성되어야 합니다. 따라서 [스레드 블록](/gpu-glossary/device-software/thread-block) 간에는 배리어 동기화와 같은 메커니즘을 사용할 수 없습니다. [스레드](/gpu-glossary/device-software/thread)와 마찬가지로 각 [스레드 블록](/gpu-glossary/device-software/thread-block) 역시 배열 인덱스 기반의 작업 분배를 지원하기 위해 고유한 인덱스 기반 식별자를 갖습니다.
+
+이러한 계층 구조는 [GPU 하드웨어](/gpu-glossary/device-hardware)에 직접 매핑됩니다. [스레드](/gpu-glossary/device-software/thread)는 개별 [코어](/gpu-glossary/device-hardware/core)에서 실행되고, [스레드 블록](/gpu-glossary/device-software/thread-block)은 [SM](/gpu-glossary/device-hardware/streaming-multiprocessor)에 스케줄링되며, [그리드](/gpu-glossary/device-software/thread-block-grid)는 디바이스상에 사용 가능한 모든 [SM](/gpu-glossary/device-hardware/streaming-multiprocessor)을 활용합니다.

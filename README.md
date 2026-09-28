@@ -22,4 +22,5 @@ See [`LICENSE`](LICENSE) for details.
 
 ## Translations
 
+- [한국어 (Korean)](gpu-glossary-ko/readme.md)
 - [简体中文](https://github.com/miter6/gpu-glossary-zh)
