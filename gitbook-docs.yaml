@@ -1,0 +1,19 @@
+$schema: https://api.gitbook.com/gitbook-docs.yaml
+site:
+  title: GPU Glossary
+  structure:
+    - type: space
+      key: space-gpu-glossary-ko
+      title: GPU Glossary (한국어)
+      path: ko
+      default: true
+      content:
+        directory: ./gpu-glossary-ko
+        language: ko
+    - type: space
+      key: space-gpu-glossary-en
+      title: GPU Glossary (English)
+      path: en
+      content:
+        directory: ./gpu-glossary
+        language: en
